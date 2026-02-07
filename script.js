@@ -70,10 +70,21 @@ let currentPage = 'products'; // products, cart, checkout
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage();
+    loadThemeFromStorage();
     renderProducts();
     updateCartBadge();
     initializeEventListeners();
     showPage('products');
+    
+    // Initialize AOS animations
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 50
+        });
+    }
 });
 
 // ===================================
@@ -87,6 +98,9 @@ function initializeEventListeners() {
     document.getElementById('shopNowButton').addEventListener('click', () => showPage('products'));
     document.getElementById('backToCart').addEventListener('click', () => showPage('cart'));
     document.getElementById('proceedToCheckout').addEventListener('click', () => showPage('checkout'));
+    
+    // Theme toggle
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     
     // Checkout form
     document.getElementById('checkoutForm').addEventListener('submit', handleCheckoutSubmit);
@@ -109,9 +123,11 @@ function renderProducts() {
 function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card';
+    card.setAttribute('data-aos', 'fade-up');
+    card.setAttribute('data-aos-delay', Math.min(product.id * 100, 500));
     
     card.innerHTML = `
-        <img src="${product.image}" alt="${product.name}" class="product-image">
+        <img src="${product.image}" alt="${product.name}" class="product-image" loading="lazy">
         <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
             <p class="product-description">${product.description}</p>
@@ -125,7 +141,10 @@ function createProductCard(product) {
     `;
     
     const addButton = card.querySelector('.add-to-cart-button');
-    addButton.addEventListener('click', () => addToCart(product.id));
+    addButton.addEventListener('click', (e) => {
+        addToCart(product.id);
+        createCartFlyAnimation(e, product);
+    });
     
     return card;
 }
@@ -355,26 +374,29 @@ function openWhatsApp(orderData) {
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${CONFIG.sellerWhatsAppNumber}?text=${encodedMessage}`;
     
-    // Open WhatsApp in new tab
-    window.open(whatsappUrl, '_blank');
+    // Show success modal
+    showSuccessModal(orderData.orderId);
     
-    // Clear cart and show success
+    // Redirect to WhatsApp after 3 seconds
     setTimeout(() => {
+        window.open(whatsappUrl, '_blank');
+        hideSuccessModal();
+        
+        // Clear cart and reset form
         clearCart();
-        showToast('Order sent! Check WhatsApp to complete your order.');
         showPage('products');
         document.getElementById('checkoutForm').reset();
-    }, 500);
+    }, 3000);
 }
 
 function generateWhatsAppMessage(orderData) {
-    let message = `Hi 👋 I'd like to place an order from ${CONFIG.storeName}.\n\n`;
+    let message = `Hi, I'd like to place an order from ${CONFIG.storeName}.\n\n`;
     message += `Order ID: ${orderData.orderId}\n\n`;
     message += `Items:\n`;
     
     orderData.items.forEach(item => {
         const itemTotal = item.price * item.quantity;
-        message += `• ${item.quantity}x ${item.name} – ${CONFIG.currency}${itemTotal}\n`;
+        message += `- ${item.quantity}x ${item.name} - ${CONFIG.currency}${itemTotal}\n`;
     });
     
     message += `\nTotal: ${CONFIG.currency}${orderData.total}\n\n`;
@@ -418,8 +440,15 @@ function showPage(page) {
             break;
     }
     
-    // Scroll to top
-    window.scrollTo(0, 0);
+    // Scroll to top with smooth behavior
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Refresh AOS animations
+    if (typeof AOS !== 'undefined') {
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
+    }
 }
 
 // ===================================
@@ -460,4 +489,148 @@ function showToast(message) {
     setTimeout(() => {
         toast.classList.add('hidden');
     }, 3000);
+}
+
+// ===================================
+// SUCCESS MODAL
+// ===================================
+
+function showSuccessModal(orderId) {
+    const modal = document.getElementById('successModal');
+    const orderNumber = document.getElementById('orderNumber');
+    
+    orderNumber.textContent = orderId;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Trigger confetti animation
+    if (typeof confetti !== 'undefined') {
+        setTimeout(() => {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#7B3FE4', '#FF6B35', '#00B4D8', '#FFD700']
+            });
+        }, 300);
+        
+        setTimeout(() => {
+            confetti({
+                particleCount: 50,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: ['#7B3FE4', '#FF6B35', '#00B4D8', '#FFD700']
+            });
+        }, 500);
+        
+        setTimeout(() => {
+            confetti({
+                particleCount: 50,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: ['#7B3FE4', '#FF6B35', '#00B4D8', '#FFD700']
+            });
+        }, 700);
+    }
+}
+
+function hideSuccessModal() {
+    const modal = document.getElementById('successModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+// ===================================
+// CART FLY ANIMATION
+// ===================================
+
+function createCartFlyAnimation(event, product) {
+    const button = event.target;
+    const buttonRect = button.getBoundingClientRect();
+    const cartButton = document.getElementById('cartButton');
+    const cartRect = cartButton.getBoundingClientRect();
+    
+    // Create flying element
+    const flyingEl = document.createElement('div');
+    flyingEl.style.cssText = `
+        position: fixed;
+        left: ${buttonRect.left}px;
+        top: ${buttonRect.top}px;
+        width: 40px;
+        height: 40px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        z-index: 9999;
+        pointer-events: none;
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    `;
+    
+    document.body.appendChild(flyingEl);
+    
+    // Trigger animation
+    setTimeout(() => {
+        flyingEl.style.left = `${cartRect.left + cartRect.width / 2}px`;
+        flyingEl.style.top = `${cartRect.top + cartRect.height / 2}px`;
+        flyingEl.style.transform = 'scale(0)';
+        flyingEl.style.opacity = '0';
+    }, 10);
+    
+    // Remove element after animation
+    setTimeout(() => {
+        flyingEl.remove();
+        // Bounce cart badge
+        const badge = document.getElementById('cartBadge');
+        badge.style.animation = 'none';
+        setTimeout(() => {
+            badge.style.animation = 'bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        }, 10);
+    }, 800);
+}
+
+
+// ===================================
+// THEME TOGGLE
+// ===================================
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    html.setAttribute('data-theme', newTheme);
+    updateThemeIcon(newTheme);
+    saveThemeToStorage(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+    
+    if (theme === 'dark') {
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+    } else {
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+    }
+}
+
+function saveThemeToStorage(theme) {
+    try {
+        localStorage.setItem('zamarket_theme', theme);
+    } catch (error) {
+        console.error('Error saving theme to storage:', error);
+    }
+}
+
+function loadThemeFromStorage() {
+    try {
+        const savedTheme = localStorage.getItem('zamarket_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+    } catch (error) {
+        console.error('Error loading theme from storage:', error);
+    }
 }

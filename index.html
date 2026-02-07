@@ -1,10 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>za-market | WhatsApp-First Online Marketplace</title>
+    <title>za-market | Order Fresh. Delivered Fast.</title>
     <meta name="description" content="za-market - Your local online marketplace in South Africa. Browse products and order via WhatsApp.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,7 +21,25 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <h1 class="logo">za-market</h1>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <h1 class="logo">
+                    <span class="logo-za">za</span><span class="logo-dash">-</span><span class="logo-market">market</span>
+                </h1>
                 <button class="cart-button" id="cartButton" aria-label="Shopping cart">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="9" cy="21" r="1"></circle>
@@ -29,10 +56,99 @@
     <main class="main">
         <!-- Products Page -->
         <section class="products-section" id="productsSection">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="hero-background"></div>
+                <div class="container">
+                    <div class="hero-content" data-aos="fade-up">
+                        <div class="hero-badge" data-aos="fade-down" data-aos-delay="100">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                            </svg>
+                            <span>500+ Happy Customers</span>
+                        </div>
+                        <h1 class="hero-title" data-aos="fade-up" data-aos-delay="200">
+                            Order Fresh.<br>Delivered <span class="gradient-text">Fast</span>.
+                        </h1>
+                        <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="300">
+                            Your favorite meals, delivered to your door in minutes. Fresh, fast, and unforgettable.
+                        </p>
+                        <div class="hero-features" data-aos="fade-up" data-aos-delay="400">
+                            <div class="hero-feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                <span>Local Delivery</span>
+                            </div>
+                            <div class="hero-feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                    <line x1="1" y1="10" x2="23" y2="10"/>
+                                </svg>
+                                <span>Secure Payment</span>
+                            </div>
+                            <div class="hero-feature">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                    <polyline points="17 6 23 6 23 12"/>
+                                </svg>
+                                <span>Fast Service</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="container">
-                <h2 class="section-title">Our Products</h2>
+                <div class="section-header" data-aos="fade-up">
+                    <h2 class="section-title">Our Menu</h2>
+                    <p class="section-subtitle">Handpicked favorites, made fresh daily</p>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="search-container" data-aos="fade-up" data-aos-delay="100">
+                    <div class="search-wrapper">
+                        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="Search for burgers, chips, drinks..."
+                            autocomplete="off"
+                        >
+                        <button class="search-clear hidden" id="searchClear" aria-label="Clear search">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="search-results-info hidden" id="searchResultsInfo">
+                        <span id="searchResultsText"></span>
+                    </div>
+                </div>
+                
                 <div class="products-grid" id="productsGrid">
                     <!-- Products will be dynamically inserted here -->
+                </div>
+                
+                <!-- No Results Message -->
+                <div class="no-results hidden" id="noResults">
+                    <div class="no-results-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                            <line x1="11" y1="8" x2="11" y2="14"></line>
+                            <line x1="11" y1="16" x2="11.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h3 class="no-results-title">No products found</h3>
+                    <p class="no-results-text">Try searching for something else or browse all products</p>
+                    <button class="button button-secondary" id="clearSearchButton">Clear Search</button>
                 </div>
             </div>
         </section>
@@ -197,7 +313,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>Powered by <strong>brelinx</strong></p>
+            <p>Powered by <a href="https://brelinx.com" target="_blank" rel="noopener noreferrer" class="footer-link"><strong>brelinx</strong></a></p>
         </div>
     </footer>
 
@@ -206,6 +322,26 @@
         <span id="toastMessage"></span>
     </div>
 
+    <!-- Success Modal -->
+    <div class="modal-overlay hidden" id="successModal">
+        <div class="success-modal">
+            <div class="success-icon">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <h2 class="success-title">Order Successful!</h2>
+            <p class="success-message" id="successMessage">Your order number is <strong id="orderNumber"></strong></p>
+            <p class="success-redirect">Redirecting you to WhatsApp now...</p>
+            <canvas id="confettiCanvas"></canvas>
+        </div>
+    </div>
+
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
