@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>za-market | WhatsApp-First Online Marketplace</title>
+    <meta name="description" content="za-market - Your local online marketplace in South Africa. Browse products and order via WhatsApp.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header / Navigation -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">za-market</h1>
+                <button class="cart-button" id="cartButton" aria-label="Shopping cart">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Products Page -->
+        <section class="products-section" id="productsSection">
+            <div class="container">
+                <h2 class="section-title">Our Products</h2>
+                <div class="products-grid" id="productsGrid">
+                    <!-- Products will be dynamically inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Cart Page -->
+        <section class="cart-section hidden" id="cartSection">
+            <div class="container">
+                <div class="cart-header">
+                    <button class="back-button" id="backToProducts">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                        </svg>
+                        Continue Shopping
+                    </button>
+                    <h2 class="section-title">Your Cart</h2>
+                </div>
+
+                <div class="cart-content">
+                    <div class="cart-empty" id="cartEmpty">
+                        <p>Your cart is empty</p>
+                        <button class="button button-secondary" id="shopNowButton">Start Shopping</button>
+                    </div>
+
+                    <div class="cart-items" id="cartItems">
+                        <!-- Cart items will be dynamically inserted here -->
+                    </div>
+
+                    <div class="cart-summary" id="cartSummary">
+                        <div class="summary-row">
+                            <span class="summary-label">Total</span>
+                            <span class="summary-value" id="cartTotal">R0</span>
+                        </div>
+                        <button class="button button-primary" id="proceedToCheckout">Proceed to Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checkout Page -->
+        <section class="checkout-section hidden" id="checkoutSection">
+            <div class="container">
+                <div class="cart-header">
+                    <button class="back-button" id="backToCart">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                        </svg>
+                        Back to Cart
+                    </button>
+                    <h2 class="section-title">Checkout</h2>
+                </div>
+
+                <div class="checkout-content">
+                    <form class="checkout-form" id="checkoutForm">
+                        <!-- Customer Details -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">Customer Details</h3>
+                            
+                            <div class="form-group">
+                                <label for="customerName">Full Name</label>
+                                <input 
+                                    type="text" 
+                                    id="customerName" 
+                                    name="customerName" 
+                                    required
+                                    placeholder="John Doe"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="customerPhone">Phone Number</label>
+                                <input 
+                                    type="tel" 
+                                    id="customerPhone" 
+                                    name="customerPhone" 
+                                    required
+                                    placeholder="071 234 5678"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="deliveryAddress">Delivery Address</label>
+                                <textarea 
+                                    id="deliveryAddress" 
+                                    name="deliveryAddress" 
+                                    rows="3" 
+                                    required
+                                    placeholder="23 Main Road, Cape Town"
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">Payment Method</h3>
+                            
+                            <div class="payment-methods">
+                                <label class="payment-option">
+                                    <input 
+                                        type="radio" 
+                                        name="paymentMethod" 
+                                        value="cash" 
+                                        required
+                                    >
+                                    <div class="payment-option-content">
+                                        <span class="payment-option-title">Pay on Delivery – Cash</span>
+                                    </div>
+                                </label>
+
+                                <label class="payment-option">
+                                    <input 
+                                        type="radio" 
+                                        name="paymentMethod" 
+                                        value="card" 
+                                        required
+                                    >
+                                    <div class="payment-option-content">
+                                        <span class="payment-option-title">Pay on Delivery – Card / Tap</span>
+                                    </div>
+                                </label>
+
+                                <label class="payment-option payment-option-disabled">
+                                    <input 
+                                        type="radio" 
+                                        name="paymentMethod" 
+                                        value="online" 
+                                        disabled
+                                    >
+                                    <div class="payment-option-content">
+                                        <span class="payment-option-title">Pay Online</span>
+                                        <span class="payment-option-badge">Coming Soon</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">Order Summary</h3>
+                            <div class="order-summary" id="checkoutOrderSummary">
+                                <!-- Order items will be inserted here -->
+                            </div>
+                            <div class="order-total">
+                                <span class="order-total-label">Total</span>
+                                <span class="order-total-value" id="checkoutTotal">R0</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button 
+                            type="submit" 
+                            class="button button-primary button-large" 
+                            id="confirmOrderButton"
+                        >
+                            Confirm Order on WhatsApp
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Powered by <strong>brelinx</strong></p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
