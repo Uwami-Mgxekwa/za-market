@@ -267,37 +267,6 @@ input, textarea {
     color: var(--neutral-charcoal);
 }
 
-.theme-toggle {
-    background: var(--neutral-gray-100);
-    border: 1px solid var(--neutral-gray-200);
-    padding: var(--space-2);
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    transition: all var(--transition-smooth);
-}
-
-.theme-toggle:hover {
-    background: var(--neutral-gray-200);
-    transform: scale(1.05);
-}
-
-.theme-toggle:active {
-    transform: scale(0.95);
-}
-
-.theme-toggle svg {
-    color: var(--neutral-charcoal);
-    transition: transform var(--transition-smooth);
-}
-
-.theme-toggle:hover svg {
-    transform: rotate(20deg);
-}
-
 .cart-button {
     position: relative;
     background: var(--gradient-primary);
@@ -1752,4 +1721,49 @@ textarea:focus {
     );
     background-size: 1000px 100%;
     animation: shimmer 2s infinite;
+}
+
+
+/* ===================================
+   SETTINGS-BASED STYLES
+   =================================== */
+
+/* Font Size Options */
+.font-small {
+    font-size: 14px;
+}
+
+.font-medium {
+    font-size: 16px;
+}
+
+.font-large {
+    font-size: 18px;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+    --neutral-gray-600: #000000;
+    --neutral-gray-700: #000000;
+    --neutral-charcoal: #000000;
+}
+
+[data-theme="dark"].high-contrast {
+    --neutral-gray-600: #FFFFFF;
+    --neutral-gray-700: #FFFFFF;
+    --neutral-charcoal: #FFFFFF;
+    --neutral-white: #000000;
+    --neutral-cream: #000000;
+}
+
+.high-contrast .product-card,
+.high-contrast .cart-item,
+.high-contrast .settings-section {
+    border-width: 3px;
+}
+
+.high-contrast button,
+.high-contrast .button {
+    border-width: 3px;
+    font-weight: 700;
 }

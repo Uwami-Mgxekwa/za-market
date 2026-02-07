@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage();
     loadThemeFromStorage();
     loadOrderHistoryFromStorage();
+    loadAndApplySettings(); // Load settings from settings page
     renderProducts();
     updateCartBadge();
     initializeEventListeners();
@@ -120,15 +121,13 @@ function initializeEventListeners() {
     // Navigation
     document.getElementById('cartButton').addEventListener('click', () => showPage('cart'));
     document.getElementById('historyButton').addEventListener('click', () => showPage('history'));
+    document.getElementById('settingsButton').addEventListener('click', () => window.location.href = 'settings.html');
     document.getElementById('backToProducts').addEventListener('click', () => showPage('products'));
     document.getElementById('shopNowButton').addEventListener('click', () => showPage('products'));
     document.getElementById('backToCart').addEventListener('click', () => showPage('cart'));
     document.getElementById('proceedToCheckout').addEventListener('click', () => showPage('checkout'));
     document.getElementById('backToProductsFromHistory').addEventListener('click', () => showPage('products'));
     document.getElementById('startShoppingFromHistory').addEventListener('click', () => showPage('products'));
-    
-    // Theme toggle
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     
     // Location button
     document.getElementById('useLocationButton').addEventListener('click', requestLocation);
@@ -562,6 +561,12 @@ function loadCartFromStorage() {
 // ===================================
 
 function showToast(message) {
+    // Check if toast notifications are enabled
+    const settings = getSettings();
+    if (settings.toastNotifications === false) {
+        return; // Don't show toast if disabled
+    }
+    
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toastMessage');
     
@@ -585,8 +590,12 @@ function showSuccessModal(orderId) {
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     
-    // Trigger confetti animation
-    if (typeof confetti !== 'undefined') {
+    // Check if sound effects are enabled
+    const settings = getSettings();
+    const soundEnabled = settings.soundEffects !== false;
+    
+    // Trigger confetti animation only if sound effects enabled
+    if (typeof confetti !== 'undefined' && soundEnabled) {
         setTimeout(() => {
             confetti({
                 particleCount: 100,
@@ -673,45 +682,14 @@ function createCartFlyAnimation(event, product) {
 
 
 // ===================================
-// THEME TOGGLE
 // ===================================
-
-function toggleTheme() {
-    const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    html.setAttribute('data-theme', newTheme);
-    updateThemeIcon(newTheme);
-    saveThemeToStorage(newTheme);
-}
-
-function updateThemeIcon(theme) {
-    const sunIcon = document.querySelector('.sun-icon');
-    const moonIcon = document.querySelector('.moon-icon');
-    
-    if (theme === 'dark') {
-        sunIcon.classList.add('hidden');
-        moonIcon.classList.remove('hidden');
-    } else {
-        sunIcon.classList.remove('hidden');
-        moonIcon.classList.add('hidden');
-    }
-}
-
-function saveThemeToStorage(theme) {
-    try {
-        localStorage.setItem('zamarket_theme', theme);
-    } catch (error) {
-        console.error('Error saving theme to storage:', error);
-    }
-}
+// THEME LOADING
+// ===================================
 
 function loadThemeFromStorage() {
     try {
         const savedTheme = localStorage.getItem('zamarket_theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
     } catch (error) {
         console.error('Error loading theme from storage:', error);
     }
@@ -1033,5 +1011,83 @@ function loadOrderHistoryFromStorage() {
     } catch (error) {
         console.error('Error loading order history:', error);
         orderHistory = [];
+    }
+}
+
+
+// ===================================
+// SETTINGS INTEGRATION
+// ===================================
+
+function loadAndApplySettings() {
+    try {
+        const saved = localStorage.getItem('zamarket_settings');
+        if (saved) {
+            const settings = JSON.parse(saved);
+            
+            // Apply font size
+            if (settings.fontSize) {
+                document.documentElement.classList.remove('font-small', 'font-medium', 'font-large');
+                document.documentElement.classList.add(`font-${settings.fontSize}`);
+            }
+            
+            // Apply animations preference
+            if (settings.reduceAnimations) {
+                document.documentElement.style.setProperty('--transition-quick', '0ms');
+                document.documentElement.style.setProperty('--transition-smooth', '0ms');
+                document.documentElement.style.setProperty('--transition-slow', '0ms');
+            }
+            
+            // Apply high contrast
+            if (settings.highContrast) {
+                document.documentElement.classList.add('high-contrast');
+            }
+            
+            // Pre-fill checkout form with saved data
+            if (settings.userName || settings.userPhone || settings.defaultAddress) {
+                prefillCheckoutForm(settings);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading settings:', error);
+    }
+}
+
+function prefillCheckoutForm(settings) {
+    // Wait for checkout form to be available
+    const checkoutObserver = new MutationObserver(() => {
+        const nameField = document.getElementById('customerName');
+        const phoneField = document.getElementById('customerPhone');
+        const addressField = document.getElementById('deliveryAddress');
+        
+        if (nameField && settings.userName && !nameField.value) {
+            nameField.value = settings.userName;
+        }
+        if (phoneField && settings.userPhone && !phoneField.value) {
+            phoneField.value = settings.userPhone;
+        }
+        if (addressField && settings.defaultAddress && !addressField.value) {
+            addressField.value = settings.defaultAddress;
+        }
+        
+        // Pre-select payment method
+        if (settings.preferredPayment) {
+            const paymentRadio = document.querySelector(`input[name="paymentMethod"][value="${settings.preferredPayment}"]`);
+            if (paymentRadio) {
+                paymentRadio.checked = true;
+            }
+        }
+    });
+    
+    checkoutObserver.observe(document.body, { childList: true, subtree: true });
+}
+
+function getSettings() {
+    try {
+        const saved = localStorage.getItem('zamarket_settings');
+        return saved ? JSON.parse(saved) : {};
+    } catch (error) {
+        console.error('Error getting settings:', error);
+        return {};
     }
 }
