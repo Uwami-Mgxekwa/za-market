@@ -18,42 +18,63 @@ const PRODUCTS = [
         name: 'Beef Burger',
         description: 'Juicy beef patty with fresh lettuce, tomatoes, and special sauce',
         price: 80,
-        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop'
+        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop&auto=format'
     },
     {
         id: 2,
         name: 'Chicken Burger',
         description: 'Grilled chicken breast with crispy lettuce and mayo',
         price: 70,
-        image: 'https://images.unsplash.com/photo-1562547200-1c5c7024e8c8?w=400&h=300&fit=crop'
+        image: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=600&fit=crop&auto=format'
     },
     {
         id: 3,
         name: 'Veggie Burger',
         description: 'Plant-based patty with fresh vegetables and avocado',
         price: 65,
-        image: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=400&h=300&fit=crop'
+        image: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=800&h=600&fit=crop&auto=format'
     },
     {
         id: 4,
         name: 'Chips',
         description: 'Crispy golden fries with seasoning',
         price: 30,
-        image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&h=300&fit=crop'
+        image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=600&fit=crop&auto=format'
     },
     {
         id: 5,
         name: 'Coke',
         description: 'Refreshing cold Coca-Cola 330ml',
         price: 20,
-        image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=300&fit=crop'
+        image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=800&h=600&fit=crop&auto=format'
     },
     {
         id: 6,
         name: 'Milkshake',
         description: 'Creamy vanilla milkshake',
         price: 45,
-        image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=300&fit=crop'
+        image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800&h=600&fit=crop&auto=format'
+    },
+    {
+        id: 7,
+        name: 'Cheese Burger',
+        description: 'Double beef patty with melted cheddar cheese',
+        price: 90,
+        image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=800&h=600&fit=crop&auto=format'
+    },
+    {
+        id: 8,
+        name: 'Onion Rings',
+        description: 'Crispy battered onion rings with dipping sauce',
+        price: 35,
+        image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=800&h=600&fit=crop&auto=format'
+    },
+    {
+        id: 9,
+        name: 'Iced Tea',
+        description: 'Refreshing lemon iced tea',
+        price: 25,
+        image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&h=600&fit=crop&auto=format'
     }
 ];
 
@@ -62,7 +83,10 @@ const PRODUCTS = [
 // ===================================
 
 let cart = [];
-let currentPage = 'products'; // products, cart, checkout
+let currentPage = 'products'; // products, cart, checkout, history
+let searchQuery = '';
+let filteredProducts = [...PRODUCTS];
+let orderHistory = [];
 
 // ===================================
 // INITIALIZATION
@@ -71,6 +95,7 @@ let currentPage = 'products'; // products, cart, checkout
 document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage();
     loadThemeFromStorage();
+    loadOrderHistoryFromStorage();
     renderProducts();
     updateCartBadge();
     initializeEventListeners();
@@ -94,13 +119,33 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeEventListeners() {
     // Navigation
     document.getElementById('cartButton').addEventListener('click', () => showPage('cart'));
+    document.getElementById('historyButton').addEventListener('click', () => showPage('history'));
     document.getElementById('backToProducts').addEventListener('click', () => showPage('products'));
     document.getElementById('shopNowButton').addEventListener('click', () => showPage('products'));
     document.getElementById('backToCart').addEventListener('click', () => showPage('cart'));
     document.getElementById('proceedToCheckout').addEventListener('click', () => showPage('checkout'));
+    document.getElementById('backToProductsFromHistory').addEventListener('click', () => showPage('products'));
+    document.getElementById('startShoppingFromHistory').addEventListener('click', () => showPage('products'));
     
     // Theme toggle
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    
+    // Location button
+    document.getElementById('useLocationButton').addEventListener('click', requestLocation);
+    
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchClear = document.getElementById('searchClear');
+    const clearSearchButton = document.getElementById('clearSearchButton');
+    
+    searchInput.addEventListener('input', handleSearch);
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Escape') {
+            clearSearch();
+        }
+    });
+    searchClear.addEventListener('click', clearSearch);
+    clearSearchButton.addEventListener('click', clearSearch);
     
     // Checkout form
     document.getElementById('checkoutForm').addEventListener('submit', handleCheckoutSubmit);
@@ -112,12 +157,30 @@ function initializeEventListeners() {
 
 function renderProducts() {
     const productsGrid = document.getElementById('productsGrid');
+    const noResults = document.getElementById('noResults');
+    
     productsGrid.innerHTML = '';
     
-    PRODUCTS.forEach(product => {
+    if (filteredProducts.length === 0) {
+        productsGrid.classList.add('hidden');
+        noResults.classList.remove('hidden');
+        return;
+    }
+    
+    productsGrid.classList.remove('hidden');
+    noResults.classList.add('hidden');
+    
+    filteredProducts.forEach(product => {
         const productCard = createProductCard(product);
         productsGrid.appendChild(productCard);
     });
+    
+    // Refresh AOS animations
+    if (typeof AOS !== 'undefined') {
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
+    }
 }
 
 function createProductCard(product) {
@@ -127,7 +190,13 @@ function createProductCard(product) {
     card.setAttribute('data-aos-delay', Math.min(product.id * 100, 500));
     
     card.innerHTML = `
-        <img src="${product.image}" alt="${product.name}" class="product-image" loading="lazy">
+        <img 
+            src="${product.image}" 
+            alt="${product.name}" 
+            class="product-image" 
+            loading="lazy"
+            onerror="this.src='https://via.placeholder.com/800x600/7B3FE4/FFFFFF?text=${encodeURIComponent(product.name)}'"
+        >
         <div class="product-info">
             <h3 class="product-name">${product.name}</h3>
             <p class="product-description">${product.description}</p>
@@ -257,7 +326,12 @@ function createCartItem(item) {
     const subtotal = item.price * item.quantity;
     
     div.innerHTML = `
-        <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+        <img 
+            src="${item.image}" 
+            alt="${item.name}" 
+            class="cart-item-image"
+            onerror="this.src='https://via.placeholder.com/400x400/7B3FE4/FFFFFF?text=${encodeURIComponent(item.name)}'"
+        >
         <div class="cart-item-details">
             <h3 class="cart-item-name">${item.name}</h3>
             <p class="cart-item-price">${CONFIG.currency}${item.price} each</p>
@@ -374,6 +448,9 @@ function openWhatsApp(orderData) {
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${CONFIG.sellerWhatsAppNumber}?text=${encodedMessage}`;
     
+    // Save order to history
+    saveOrderToHistory(orderData);
+    
     // Show success modal
     showSuccessModal(orderData.orderId);
     
@@ -419,6 +496,7 @@ function showPage(page) {
     document.getElementById('productsSection').classList.add('hidden');
     document.getElementById('cartSection').classList.add('hidden');
     document.getElementById('checkoutSection').classList.add('hidden');
+    document.getElementById('historySection').classList.add('hidden');
     
     // Show selected section
     switch(page) {
@@ -437,6 +515,10 @@ function showPage(page) {
             }
             document.getElementById('checkoutSection').classList.remove('hidden');
             renderCheckout();
+            break;
+        case 'history':
+            document.getElementById('historySection').classList.remove('hidden');
+            renderOrderHistory();
             break;
     }
     
@@ -632,5 +714,324 @@ function loadThemeFromStorage() {
         updateThemeIcon(savedTheme);
     } catch (error) {
         console.error('Error loading theme from storage:', error);
+    }
+}
+
+
+// ===================================
+// SEARCH FUNCTIONALITY
+// ===================================
+
+function handleSearch(e) {
+    searchQuery = e.target.value.toLowerCase().trim();
+    
+    // Show/hide clear button
+    const searchClear = document.getElementById('searchClear');
+    if (searchQuery) {
+        searchClear.classList.remove('hidden');
+    } else {
+        searchClear.classList.add('hidden');
+    }
+    
+    // Filter products
+    filterProducts();
+    
+    // Update results info
+    updateSearchResultsInfo();
+    
+    // Re-render products
+    renderProducts();
+}
+
+function filterProducts() {
+    if (!searchQuery) {
+        filteredProducts = [...PRODUCTS];
+        return;
+    }
+    
+    filteredProducts = PRODUCTS.filter(product => {
+        // Search in product name
+        const nameMatch = product.name.toLowerCase().includes(searchQuery);
+        
+        // Search in product description
+        const descriptionMatch = product.description.toLowerCase().includes(searchQuery);
+        
+        // Search by price (if user types a number)
+        const priceMatch = product.price.toString().includes(searchQuery);
+        
+        // Return true if any field matches
+        return nameMatch || descriptionMatch || priceMatch;
+    });
+}
+
+function updateSearchResultsInfo() {
+    const resultsInfo = document.getElementById('searchResultsInfo');
+    const resultsText = document.getElementById('searchResultsText');
+    
+    if (!searchQuery) {
+        resultsInfo.classList.add('hidden');
+        return;
+    }
+    
+    resultsInfo.classList.remove('hidden');
+    
+    const count = filteredProducts.length;
+    const productWord = count === 1 ? 'product' : 'products';
+    
+    if (count > 0) {
+        resultsText.innerHTML = `Found <strong>${count}</strong> ${productWord} matching "<strong>${escapeHtml(searchQuery)}</strong>"`;
+    } else {
+        resultsText.innerHTML = `No products found for "<strong>${escapeHtml(searchQuery)}</strong>"`;
+    }
+}
+
+function clearSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const searchClear = document.getElementById('searchClear');
+    const resultsInfo = document.getElementById('searchResultsInfo');
+    
+    searchInput.value = '';
+    searchQuery = '';
+    searchClear.classList.add('hidden');
+    resultsInfo.classList.add('hidden');
+    
+    filteredProducts = [...PRODUCTS];
+    renderProducts();
+    
+    // Focus back on search input
+    searchInput.focus();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+
+// ===================================
+// LOCATION FUNCTIONALITY
+// ===================================
+
+async function requestLocation() {
+    const button = document.getElementById('useLocationButton');
+    const addressField = document.getElementById('deliveryAddress');
+    
+    if (!navigator.geolocation) {
+        showToast('Geolocation is not supported by your browser');
+        return;
+    }
+    
+    // Show loading state
+    button.classList.add('loading');
+    button.disabled = true;
+    const originalText = button.querySelector('span').textContent;
+    button.querySelector('span').textContent = 'Getting location...';
+    
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const { latitude, longitude } = position.coords;
+            
+            try {
+                // Use reverse geocoding to get address
+                const address = await reverseGeocode(latitude, longitude);
+                addressField.value = address;
+                showToast('Location added successfully!');
+            } catch (error) {
+                console.error('Error getting address:', error);
+                addressField.value = `Coordinates: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                showToast('Location coordinates added');
+            }
+            
+            // Reset button
+            button.classList.remove('loading');
+            button.disabled = false;
+            button.querySelector('span').textContent = originalText;
+        },
+        (error) => {
+            console.error('Error getting location:', error);
+            
+            let errorMessage = 'Unable to get your location';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = 'Location permission denied. Please enable location access.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = 'Location information unavailable';
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = 'Location request timed out';
+                    break;
+            }
+            
+            showToast(errorMessage);
+            
+            // Reset button
+            button.classList.remove('loading');
+            button.disabled = false;
+            button.querySelector('span').textContent = originalText;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+async function reverseGeocode(lat, lon) {
+    // Using OpenStreetMap Nominatim API (free, no API key needed)
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+    
+    const response = await fetch(url, {
+        headers: {
+            'User-Agent': 'za-market'
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error('Geocoding failed');
+    }
+    
+    const data = await response.json();
+    
+    // Format address
+    const address = data.address;
+    const parts = [];
+    
+    if (address.house_number) parts.push(address.house_number);
+    if (address.road) parts.push(address.road);
+    if (address.suburb) parts.push(address.suburb);
+    if (address.city || address.town) parts.push(address.city || address.town);
+    if (address.postcode) parts.push(address.postcode);
+    
+    return parts.join(', ') || data.display_name;
+}
+
+// ===================================
+// ORDER HISTORY
+// ===================================
+
+function saveOrderToHistory(orderData) {
+    const order = {
+        ...orderData,
+        timestamp: new Date().toISOString(),
+        date: new Date().toLocaleDateString('en-ZA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+    };
+    
+    orderHistory.unshift(order); // Add to beginning
+    saveOrderHistoryToStorage();
+}
+
+function renderOrderHistory() {
+    const historyList = document.getElementById('historyList');
+    const historyEmpty = document.getElementById('historyEmpty');
+    
+    if (orderHistory.length === 0) {
+        historyList.classList.add('hidden');
+        historyEmpty.classList.remove('hidden');
+        return;
+    }
+    
+    historyList.classList.remove('hidden');
+    historyEmpty.classList.add('hidden');
+    historyList.innerHTML = '';
+    
+    orderHistory.forEach(order => {
+        const orderItem = createOrderHistoryItem(order);
+        historyList.appendChild(orderItem);
+    });
+}
+
+function createOrderHistoryItem(order) {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    
+    const itemsHtml = order.items.map(item => `
+        <div class="history-product-item">
+            <span class="history-product-name">${item.quantity}x ${item.name}</span>
+            <span class="history-product-price">${CONFIG.currency}${item.price * item.quantity}</span>
+        </div>
+    `).join('');
+    
+    div.innerHTML = `
+        <div class="history-item-header">
+            <div class="history-item-info">
+                <div class="history-order-id">${order.orderId}</div>
+                <div class="history-order-date">${order.date}</div>
+            </div>
+            <div class="history-order-total">${CONFIG.currency}${order.total}</div>
+        </div>
+        <div class="history-items-list">
+            ${itemsHtml}
+        </div>
+        <div class="history-item-footer">
+            <div class="history-payment-method">
+                <strong>Payment:</strong> ${order.paymentMethod}
+            </div>
+            <button class="history-reorder-button" data-order-id="${order.orderId}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                Reorder
+            </button>
+        </div>
+    `;
+    
+    // Add reorder functionality
+    const reorderButton = div.querySelector('.history-reorder-button');
+    reorderButton.addEventListener('click', () => reorderItems(order));
+    
+    return div;
+}
+
+function reorderItems(order) {
+    // Clear current cart
+    cart = [];
+    
+    // Add all items from the order to cart
+    order.items.forEach(item => {
+        const product = PRODUCTS.find(p => p.id === item.id);
+        if (product) {
+            cart.push({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                image: product.image,
+                quantity: item.quantity
+            });
+        }
+    });
+    
+    saveCartToStorage();
+    updateCartBadge();
+    showToast(`${order.items.length} items added to cart!`);
+    showPage('cart');
+}
+
+function saveOrderHistoryToStorage() {
+    try {
+        localStorage.setItem('zamarket_order_history', JSON.stringify(orderHistory));
+    } catch (error) {
+        console.error('Error saving order history:', error);
+    }
+}
+
+function loadOrderHistoryFromStorage() {
+    try {
+        const saved = localStorage.getItem('zamarket_order_history');
+        if (saved) {
+            orderHistory = JSON.parse(saved);
+        }
+    } catch (error) {
+        console.error('Error loading order history:', error);
+        orderHistory = [];
     }
 }
