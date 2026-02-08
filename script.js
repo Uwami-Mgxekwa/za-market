@@ -424,10 +424,13 @@ function getPaymentMethodLabel(method) {
     return labels[method] || method;
 }
 
-function openWhatsApp(orderData) {
+async function openWhatsApp(orderData) {
     const message = generateWhatsAppMessage(orderData);
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${CONFIG.sellerWhatsAppNumber}?text=${encodedMessage}`;
+    
+    // Save order to database
+    await saveOrderToDatabase(orderData);
     
     // Save order to history
     saveOrderToHistory(orderData);
@@ -445,6 +448,68 @@ function openWhatsApp(orderData) {
         showPage('products');
         document.getElementById('checkoutForm').reset();
     }, 3000);
+}
+
+// ===================================
+// SAVE ORDER TO DATABASE
+// ===================================
+
+async function saveOrderToDatabase(orderData) {
+    try {
+        // Get the seller (admin user)
+        const sellerQuery = new Parse.Query(Parse.User);
+        sellerQuery.equalTo('role', 'admin');
+        const seller = await sellerQuery.first();
+        
+        if (!seller) {
+            console.error('No seller found with role admin');
+            console.log('Attempting to find any user...');
+            // Fallback: try to get the first user
+            const fallbackQuery = new Parse.Query(Parse.User);
+            const anySeller = await fallbackQuery.first();
+            if (!anySeller) {
+                console.error('No users found in database');
+                return;
+            }
+            console.log('Using fallback seller:', anySeller.get('username'));
+        }
+        
+        const actualSeller = seller || await new Parse.Query(Parse.User).first();
+        
+        // Create order
+        const Order = Parse.Object.extend('Order');
+        const order = new Order();
+        
+        order.set('orderId', orderData.orderId);
+        order.set('seller', actualSeller);
+        order.set('customerName', orderData.customerName);
+        order.set('customerPhone', orderData.customerPhone);
+        order.set('deliveryAddress', orderData.deliveryAddress);
+        order.set('paymentMethod', orderData.paymentMethod);
+        order.set('items', orderData.items);
+        order.set('total', orderData.total);
+        order.set('commission', orderData.total * 0.15); // 15% commission
+        order.set('status', 'Pending');
+        
+        await order.save();
+        
+        console.log('Order saved to database:', orderData.orderId);
+        
+        // Update seller's outstanding balance (try without master key first)
+        try {
+            const currentBalance = actualSeller.get('outstandingBalance') || 0;
+            actualSeller.set('outstandingBalance', currentBalance + (orderData.total * 0.15));
+            await actualSeller.save();
+            console.log('Seller balance updated successfully');
+        } catch (balanceError) {
+            console.error('Error updating seller balance:', balanceError.message);
+            console.log('Order saved but balance not updated - platform owner can update manually');
+        }
+        
+    } catch (error) {
+        console.error('Error saving order to database:', error);
+        // Don't block the order flow if database save fails
+    }
 }
 
 function generateWhatsAppMessage(orderData) {

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Owner Dashboard | za-market</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="seller-styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="dashboard-header-content">
+            <h1 class="dashboard-logo">
+                <span class="logo-za">za</span><span class="logo-dash">-</span><span class="logo-market">market</span>
+                <span style="font-size: 0.6em; color: var(--accent-orange); margin-left: 10px;">Platform</span>
+            </h1>
+            <div class="dashboard-header-actions">
+                <span class="seller-name" id="platformOwnerName">Platform Owner</span>
+                <button class="dashboard-button secondary" id="logoutButton">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #7B3FE4 0%, #9D5FFF 100%);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Sellers</p>
+                    <p class="stat-value" id="totalSellers">0</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #FF6B35 0%, #FF8C61 100%);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Orders</p>
+                    <p class="stat-value" id="totalOrders">0</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #00B4D8 0%, #48CAE4 100%);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Pending Commission</p>
+                    <p class="stat-value" id="pendingCommission">R0</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #06D6A0 0%, #1BE7A8 100%);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Commission Received</p>
+                    <p class="stat-value" id="commissionReceived">R0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sellers Management -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">Sellers Management</h2>
+                <button class="dashboard-button" id="refreshSellersBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+
+            <div class="sellers-table-container">
+                <table class="sellers-table" id="sellersTable">
+                    <thead>
+                        <tr>
+                            <th>Store Name</th>
+                            <th>Orders</th>
+                            <th>Total Revenue</th>
+                            <th>Commission Owed</th>
+                            <th>Last Payment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sellersTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px;">Loading sellers...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Orders</h2>
+            </div>
+
+            <div class="orders-list" id="recentOrdersList">
+                <p style="text-align: center; padding: 40px; color: var(--text-secondary);">Loading orders...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Record Payment Modal -->
+    <div class="modal hidden" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="paymentModalTitle">Record Payment</h2>
+                <button class="modal-close" id="closePaymentModalBtn">&times;</button>
+            </div>
+
+            <form class="modal-form" id="paymentForm">
+                <input type="hidden" id="paymentSellerId">
+
+                <div class="form-group">
+                    <label for="paymentAmount">Amount Received (R)</label>
+                    <input 
+                        type="number" 
+                        id="paymentAmount" 
+                        required
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Select method</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cash">Cash</option>
+                        <option value="EFT">EFT</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentReference">Reference/Transaction ID</label>
+                    <input 
+                        type="text" 
+                        id="paymentReference" 
+                        placeholder="Optional"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentNotes">Notes</label>
+                    <textarea 
+                        id="paymentNotes" 
+                        rows="3"
+                        placeholder="Optional notes about this payment"
+                    ></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="dashboard-button secondary" id="cancelPaymentBtn">Cancel</button>
+                    <button type="submit" class="dashboard-button" id="savePaymentBtn">Record Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Back4App SDK -->
+    <script src="https://npmcdn.com/parse@3.4.4/dist/parse.min.js"></script>
+    <script src="developer-dashboard.js"></script>
+</body>
+</html>
