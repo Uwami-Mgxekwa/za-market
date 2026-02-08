@@ -1,4 +1,14 @@
 // ===================================
+// BACK4APP CONFIGURATION
+// ===================================
+
+Parse.initialize(
+    'SCIT7yqMjDsPcbB0J94vj8Q2nxI3kBV79nPDmCwF', // Application ID
+    'dqX7w4z08tRRUBU2fO1AdPvUz9suUv5VEY92vEyt'  // JavaScript Key
+);
+Parse.serverURL = 'https://parseapi.back4app.com/';
+
+// ===================================
 // CONFIGURATION
 // ===================================
 
@@ -9,94 +19,29 @@ const CONFIG = {
 };
 
 // ===================================
-// SAMPLE PRODUCTS DATA
-// ===================================
-
-const PRODUCTS = [
-    {
-        id: 1,
-        name: 'Beef Burger',
-        description: 'Juicy beef patty with fresh lettuce, tomatoes, and special sauce',
-        price: 80,
-        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=600&fit=crop&auto=format'
-    },
-    {
-        id: 2,
-        name: 'Chicken Burger',
-        description: 'Grilled chicken breast with crispy lettuce and mayo',
-        price: 70,
-        image: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=800&h=600&fit=crop&auto=format'
-    },
-    {
-        id: 3,
-        name: 'Veggie Burger',
-        description: 'Plant-based patty with fresh vegetables and avocado',
-        price: 65,
-        image: 'https://images.unsplash.com/photo-1520072959219-c595dc870360?w=800&h=600&fit=crop&auto=format'
-    },
-    {
-        id: 4,
-        name: 'Chips',
-        description: 'Crispy golden fries with seasoning',
-        price: 30,
-        image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&h=600&fit=crop&auto=format'
-    },
-    {
-        id: 5,
-        name: 'Coke',
-        description: 'Refreshing cold Coca-Cola 330ml',
-        price: 20,
-        image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=800&h=600&fit=crop&auto=format'
-    },
-    {
-        id: 6,
-        name: 'Milkshake',
-        description: 'Creamy vanilla milkshake',
-        price: 45,
-        image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800&h=600&fit=crop&auto=format'
-    },
-    {
-        id: 7,
-        name: 'Cheese Burger',
-        description: 'Double beef patty with melted cheddar cheese',
-        price: 90,
-        image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=800&h=600&fit=crop&auto=format'
-    },
-    {
-        id: 8,
-        name: 'Onion Rings',
-        description: 'Crispy battered onion rings with dipping sauce',
-        price: 35,
-        image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?w=800&h=600&fit=crop&auto=format'
-    },
-    {
-        id: 9,
-        name: 'Iced Tea',
-        description: 'Refreshing lemon iced tea',
-        price: 25,
-        image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&h=600&fit=crop&auto=format'
-    }
-];
-
-// ===================================
 // STATE MANAGEMENT
 // ===================================
 
+let PRODUCTS = []; // Will be loaded from database
 let cart = [];
 let currentPage = 'products'; // products, cart, checkout, history
 let searchQuery = '';
-let filteredProducts = [...PRODUCTS];
+let filteredProducts = [];
 let orderHistory = [];
 
 // ===================================
 // INITIALIZATION
 // ===================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     loadCartFromStorage();
     loadThemeFromStorage();
     loadOrderHistoryFromStorage();
     loadAndApplySettings(); // Load settings from settings page
+    
+    // Load products from database
+    await loadProductsFromDatabase();
+    
     renderProducts();
     updateCartBadge();
     initializeEventListeners();
@@ -112,6 +57,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ===================================
+// LOAD PRODUCTS FROM DATABASE
+// ===================================
+
+async function loadProductsFromDatabase() {
+    try {
+        const Product = Parse.Object.extend('Product');
+        const query = new Parse.Query(Product);
+        query.descending('createdAt');
+        
+        const results = await query.find();
+        
+        // Convert Parse objects to plain objects
+        PRODUCTS = results.map((product, index) => {
+            const imageUrl = product.get('imageUrl') || product.get('image')?.url() || 'https://via.placeholder.com/800x600/7B3FE4/FFFFFF?text=Product';
+            
+            return {
+                id: product.id, // Use Parse object ID
+                name: product.get('name'),
+                description: product.get('description'),
+                price: product.get('price'),
+                image: imageUrl
+            };
+        });
+        
+        filteredProducts = [...PRODUCTS];
+        
+        console.log(`Loaded ${PRODUCTS.length} products from database`);
+        
+    } catch (error) {
+        console.error('Error loading products from database:', error);
+        showToast('Error loading products. Please refresh the page.');
+        PRODUCTS = [];
+        filteredProducts = [];
+    }
+}
 
 // ===================================
 // EVENT LISTENERS

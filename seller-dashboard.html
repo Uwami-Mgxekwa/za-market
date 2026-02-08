@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard | za-market</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="seller-styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="seller-header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-za">za</span><span class="logo-dash">-</span><span class="logo-market">market</span>
+                </h1>
+                <div class="header-actions">
+                    <span class="seller-name" id="sellerName">Loading...</span>
+                    <button class="icon-button" id="logoutButton" aria-label="Logout">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #7B3FE4 0%, #9B6FFF 100%);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Products</p>
+                        <p class="stat-value" id="totalProducts">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #FF6B35 0%, #FF8C5F 100%);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Orders</p>
+                        <p class="stat-value" id="totalOrders">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #00B4D8 0%, #48CAE4 100%);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Revenue</p>
+                        <p class="stat-value" id="totalRevenue">R0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="dashboard-actions">
+                <button class="action-btn primary" id="addProductBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add New Product
+                </button>
+                <button class="action-btn secondary" id="refreshProductsBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+
+            <!-- Products List -->
+            <div class="products-section">
+                <h2 class="section-title">Your Products</h2>
+                <div class="products-list" id="productsList">
+                    <!-- Products will be loaded here -->
+                </div>
+                <div class="empty-state hidden" id="emptyState">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <h3>No Products Yet</h3>
+                    <p>Start by adding your first product</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal-overlay hidden" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Product</h2>
+                <button class="modal-close" id="closeModalBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <form class="product-form" id="productForm">
+                <input type="hidden" id="productId">
+
+                <div class="form-group">
+                    <label for="productName">Product Name *</label>
+                    <input type="text" id="productName" required placeholder="e.g., Beef Burger">
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">Description *</label>
+                    <textarea id="productDescription" required rows="3" placeholder="Describe your product..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="productPrice">Price (R) *</label>
+                    <input type="number" id="productPrice" required min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="productImage">Product Image *</label>
+                    <input type="file" id="productImage" accept="image/*">
+                    <small>Or enter image URL below</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="productImageUrl">Image URL (Optional)</label>
+                    <input type="url" id="productImageUrl" placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="image-preview hidden" id="imagePreview">
+                    <img id="previewImg" src="" alt="Preview">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn-primary" id="saveProductBtn">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Back4App SDK -->
+    <script src="https://npmcdn.com/parse@3.4.4/dist/parse.min.js"></script>
+    <script src="seller-dashboard.js"></script>
+</body>
+</html>
