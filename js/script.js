@@ -861,7 +861,15 @@ async function requestLocation() {
                 // Use reverse geocoding to get address
                 const address = await reverseGeocode(latitude, longitude);
                 addressField.value = address;
-                showToast('Location added successfully!');
+                
+                // Check if address starts with a number (has house number)
+                const hasHouseNumber = /^\d/.test(address);
+                
+                if (hasHouseNumber) {
+                    showToast('Location added successfully!');
+                } else {
+                    showToast('Location added - please add house/building number if needed');
+                }
             } catch (error) {
                 console.error('Error getting address:', error);
                 addressField.value = `Coordinates: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
