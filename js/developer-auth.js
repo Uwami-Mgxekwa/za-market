@@ -13,11 +13,26 @@ Parse.serverURL = 'https://parseapi.back4app.com/';
 // ===================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Check if already logged in
-    const currentUser = Parse.User.current();
-    if (currentUser && currentUser.get('role') === 'platform_owner') {
-        window.location.href = 'developer.html';
-        return;
+    // Clear any invalid cached sessions
+    try {
+        const currentUser = Parse.User.current();
+        if (currentUser) {
+            // Try to fetch the user to see if session is valid
+            try {
+                await currentUser.fetch();
+                // Session is valid, redirect to dashboard
+                if (currentUser.get('role') === 'platform_owner') {
+                    window.location.href = 'developer.html';
+                    return;
+                }
+            } catch (error) {
+                // Session is invalid, logout
+                console.log('Invalid session, logging out...');
+                await Parse.User.logOut();
+            }
+        }
+    } catch (error) {
+        console.log('Session check error:', error.message);
     }
     
     // Create default platform owner account if it doesn't exist

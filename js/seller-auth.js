@@ -39,6 +39,23 @@ async function createDefaultAdmin() {
         
         if (existingAdmin) {
             console.log('Admin account already exists');
+            
+            // Update role if missing
+            if (!existingAdmin.get('role') || existingAdmin.get('role') !== 'admin') {
+                console.log('Updating admin role...');
+                existingAdmin.set('role', 'admin');
+                existingAdmin.set('commissionRate', 0.15);
+                existingAdmin.set('outstandingBalance', existingAdmin.get('outstandingBalance') || 0);
+                existingAdmin.set('totalPaid', existingAdmin.get('totalPaid') || 0);
+                existingAdmin.set('accountStatus', existingAdmin.get('accountStatus') || 'Active');
+                
+                try {
+                    await existingAdmin.save();
+                    console.log('Admin role updated successfully');
+                } catch (saveError) {
+                    console.log('Could not update admin role (user not logged in):', saveError.message);
+                }
+            }
             return;
         }
         
@@ -51,7 +68,10 @@ async function createDefaultAdmin() {
         admin.set('phone', '0000000000');
         admin.set('role', 'admin');
         admin.set('isActive', true);
-        admin.set('commissionRate', 0.10);
+        admin.set('commissionRate', 0.15);
+        admin.set('outstandingBalance', 0);
+        admin.set('totalPaid', 0);
+        admin.set('accountStatus', 'Active');
         
         await admin.signUp();
         console.log('Default admin account created successfully');

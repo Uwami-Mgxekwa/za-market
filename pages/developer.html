@@ -33,21 +33,6 @@
         <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, #7B3FE4 0%, #9D5FFF 100%);">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                </div>
-                <div class="stat-content">
-                    <p class="stat-label">Total Sellers</p>
-                    <p class="stat-value" id="totalSellers">0</p>
-                </div>
-            </div>
-
-            <div class="stat-card">
                 <div class="stat-icon" style="background: linear-gradient(135deg, #FF6B35 0%, #FF8C61 100%);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="9" cy="21" r="1"></circle>
@@ -87,43 +72,45 @@
             </div>
         </div>
 
-        <!-- Sellers Management -->
+        <!-- Payment Recording Section -->
         <div class="dashboard-section">
             <div class="section-header">
-                <h2 class="section-title">Sellers Management</h2>
-                <button class="dashboard-button" id="refreshSellersBtn">
+                <h2 class="section-title">Record Payment from Seller</h2>
+                <button class="dashboard-button" id="openPaymentModalBtn" style="background: var(--accent-orange); font-size: 1.1rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Record Payment Received
+                </button>
+            </div>
+            
+            <div class="payment-info-card">
+                <div class="payment-info-row">
+                    <span class="payment-info-label">Seller Name:</span>
+                    <span class="payment-info-value" id="sellerNameDisplay">za-market Admin</span>
+                </div>
+                <div class="payment-info-row">
+                    <span class="payment-info-label">Current Balance Owed:</span>
+                    <span class="payment-info-value outstanding" id="currentBalanceDisplay">R0.00</span>
+                </div>
+                <div class="payment-info-row">
+                    <span class="payment-info-label">Last Payment Date:</span>
+                    <span class="payment-info-value" id="lastPaymentDisplay">Never</span>
+                </div>
+                <div class="payment-info-row">
+                    <span class="payment-info-label">Total Paid (Lifetime):</span>
+                    <span class="payment-info-value" id="totalPaidDisplay">R0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="23 4 23 10 17 10"></polyline>
                         <polyline points="1 20 1 14 7 14"></polyline>
                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                     </svg>
-                    Refresh
-                </button>
-            </div>
-
-            <div class="sellers-table-container">
-                <table class="sellers-table" id="sellersTable">
-                    <thead>
-                        <tr>
-                            <th>Store Name</th>
-                            <th>Orders</th>
-                            <th>Total Revenue</th>
-                            <th>Commission Owed</th>
-                            <th>Last Payment</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sellersTableBody">
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 40px;">Loading sellers...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Recent Orders -->
         <div class="dashboard-section">
             <div class="section-header">
                 <h2 class="section-title">Recent Orders</h2>

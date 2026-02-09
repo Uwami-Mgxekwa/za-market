@@ -457,31 +457,36 @@ async function openWhatsApp(orderData) {
 async function saveOrderToDatabase(orderData) {
     try {
         // Get the seller (admin user)
+        let seller = null;
         const sellerQuery = new Parse.Query(Parse.User);
         sellerQuery.equalTo('role', 'admin');
-        const seller = await sellerQuery.first();
+        seller = await sellerQuery.first();
         
         if (!seller) {
             console.error('No seller found with role admin');
-            console.log('Attempting to find any user...');
-            // Fallback: try to get the first user
-            const fallbackQuery = new Parse.Query(Parse.User);
-            const anySeller = await fallbackQuery.first();
-            if (!anySeller) {
-                console.error('No users found in database');
+            // Try to find by username as fallback
+            const usernameQuery = new Parse.Query(Parse.User);
+            usernameQuery.equalTo('username', 'admin');
+            const adminByUsername = await usernameQuery.first();
+            
+            if (!adminByUsername) {
+                console.error('No admin user found in database');
+                showToast('Error: Admin user not found. Please contact support.');
                 return;
             }
-            console.log('Using fallback seller:', anySeller.get('username'));
+            
+            console.log('Found admin by username, using as seller');
+            seller = adminByUsername;
         }
         
-        const actualSeller = seller || await new Parse.Query(Parse.User).first();
+        console.log('Using seller:', seller.get('username'), 'Role:', seller.get('role'));
         
         // Create order
         const Order = Parse.Object.extend('Order');
         const order = new Order();
         
         order.set('orderId', orderData.orderId);
-        order.set('seller', actualSeller);
+        order.set('seller', seller);
         order.set('customerName', orderData.customerName);
         order.set('customerPhone', orderData.customerPhone);
         order.set('deliveryAddress', orderData.deliveryAddress);
@@ -497,7 +502,7 @@ async function saveOrderToDatabase(orderData) {
         
         // Update seller's outstanding balance (try without master key first)
         try {
-            const currentBalance = actualSeller.get('outstandingBalance') || 0;
+            const currentBalance = seller.get('outstandingBalance') || 0;
             actualSeller.set('outstandingBalance', currentBalance + (orderData.total * 0.15));
             await actualSeller.save();
             console.log('Seller balance updated successfully');
