@@ -906,6 +906,7 @@ async function requestLocation() {
 
 async function reverseGeocode(lat, lon) {
     // Using OpenStreetMap Nominatim API (free, no API key needed)
+    // zoom=18 gives the most detailed address level
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
     
     const response = await fetch(url, {
@@ -920,17 +921,52 @@ async function reverseGeocode(lat, lon) {
     
     const data = await response.json();
     
-    // Format address
+    // Format address with all available details
     const address = data.address;
     const parts = [];
     
-    if (address.house_number) parts.push(address.house_number);
-    if (address.road) parts.push(address.road);
-    if (address.suburb) parts.push(address.suburb);
-    if (address.city || address.town) parts.push(address.city || address.town);
-    if (address.postcode) parts.push(address.postcode);
+    // Try to get the most specific address components
+    if (address.house_number) {
+        parts.push(address.house_number);
+    }
     
-    return parts.join(', ') || data.display_name;
+    // Add street/road name
+    if (address.road) {
+        parts.push(address.road);
+    } else if (address.street) {
+        parts.push(address.street);
+    }
+    
+    // Add neighborhood/suburb
+    if (address.neighbourhood) {
+        parts.push(address.neighbourhood);
+    } else if (address.suburb) {
+        parts.push(address.suburb);
+    }
+    
+    // Add city/town
+    if (address.city) {
+        parts.push(address.city);
+    } else if (address.town) {
+        parts.push(address.town);
+    } else if (address.village) {
+        parts.push(address.village);
+    }
+    
+    // Add postal code
+    if (address.postcode) {
+        parts.push(address.postcode);
+    }
+    
+    // If we have a formatted address, use it, otherwise fall back to display_name
+    const formattedAddress = parts.length > 0 ? parts.join(', ') : data.display_name;
+    
+    // If no house number was found, add a note to help the user
+    if (!address.house_number && parts.length > 0) {
+        console.log('Note: Exact house number not available in map data. Please add it manually if needed.');
+    }
+    
+    return formattedAddress;
 }
 
 // ===================================

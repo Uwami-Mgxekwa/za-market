@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seller Login | za-market</title>
+    <title>Platform Owner Login | za-market</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="seller-styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/seller-styles.css">
 </head>
 <body>
     <div class="auth-container">
@@ -20,43 +20,43 @@
                 <h1 class="auth-logo">
                     <span class="logo-za">za</span><span class="logo-dash">-</span><span class="logo-market">market</span>
                 </h1>
-                <h2 class="auth-title">Business Owner Login</h2>
-                <p class="auth-subtitle">Manage your products and orders</p>
+                <h2 class="auth-title">Platform Owner Access</h2>
+                <p class="auth-subtitle">Manage platform and track earnings</p>
             </div>
 
             <!-- Login Form -->
-            <form class="auth-form" id="loginForm">
+            <form class="auth-form" id="developerLoginForm">
                 <div class="form-group">
-                    <label for="loginUsername">Username</label>
+                    <label for="developerUsername">Username</label>
                     <input 
                         type="text" 
-                        id="loginUsername" 
+                        id="developerUsername" 
                         required
-                        placeholder="Enter your username"
+                        placeholder="Enter platform owner username"
                         autocomplete="username"
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="loginPassword">Password</label>
+                    <label for="developerPassword">Password</label>
                     <input 
                         type="password" 
-                        id="loginPassword" 
+                        id="developerPassword" 
                         required
                         placeholder="Enter your password"
                         autocomplete="current-password"
                     >
                 </div>
 
-                <button type="submit" class="auth-button" id="loginButton">
-                    <span>Login</span>
+                <button type="submit" class="auth-button" id="developerLoginButton">
+                    <span>Access Dashboard</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
                 </button>
             </form>
 
-            <a href="index.html" class="back-to-store">
+            <a href="../index.html" class="back-to-store">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 12H5M12 19l-7-7 7-7"></path>
                 </svg>
@@ -72,6 +72,6 @@
 
     <!-- Back4App SDK -->
     <script src="https://npmcdn.com/parse@3.4.4/dist/parse.min.js"></script>
-    <script src="seller-auth.js"></script>
+    <script src="../js/developer-auth.js"></script>
 </body>
 </html>
